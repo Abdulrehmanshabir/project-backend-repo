@@ -26,6 +26,17 @@ const UserSchema = new mongoose.Schema({
         required: [true, 'Please provide password'],
         minlength: 3
     },
+    role: {
+        type: String,
+        enum: ['admin','manager'],
+        default: 'manager',
+        required: true
+    },
+    branches: {
+        // '*' means all branches; otherwise array of Branch.code strings
+        type: mongoose.Schema.Types.Mixed,
+        default: '*'
+    },
 });
 
 UserSchema.pre("save", async function(){

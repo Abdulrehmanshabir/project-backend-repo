@@ -1,0 +1,40 @@
+import { Link, NavLink } from 'react-router-dom';
+import { useMemo } from 'react';
+import { jwtDecode } from 'jwt-decode';
+
+export default function Navbar() {
+  const token = localStorage.getItem('accessToken') || '';
+  const role = useMemo(() => {
+    try { return jwtDecode(token)?.role || ''; } catch { return ''; }
+  }, [token]);
+  const isAdmin = role === 'admin' || role === 'owner';
+
+  const linkStyle = ({ isActive }) => ({
+    padding: '6px 10px',
+    marginRight: 8,
+    borderRadius: 6,
+    textDecoration: 'none',
+    background: isActive ? '#eee' : '#f7f7f7',
+    color: '#222',
+    border: '1px solid #ddd',
+  });
+
+  return (
+    <nav className="row" style={{ alignItems:'center', justifyContent:'space-between', marginBottom: 16 }}>
+      <div className="row" style={{ gap: 8, flexWrap: 'wrap' }}>
+        <NavLink to="/dashboard" style={linkStyle}>Dashboard</NavLink>
+        <NavLink to="/products" style={linkStyle}>Products</NavLink>
+        <NavLink to="/stock" style={linkStyle}>Stock</NavLink>
+        <NavLink to="/pos" style={linkStyle}>POS</NavLink>
+        <NavLink to="/reports" style={linkStyle}>Reports</NavLink>
+        <NavLink to="/analytics" style={linkStyle}>Analytics</NavLink>
+        <NavLink to="/investments" style={linkStyle}>Investments</NavLink>
+        <NavLink to="/expenses" style={linkStyle}>Expenses</NavLink>
+        {isAdmin && <NavLink to="/branches" style={linkStyle}>Branches</NavLink>}
+        {isAdmin && <NavLink to="/users" style={linkStyle}>Users</NavLink>}
+      </div>
+      <Link to="/logout" className="btn">Logout</Link>
+    </nav>
+  );
+}
+

@@ -1,95 +1,116 @@
-# MERN Login And Register With JSON Web Token - Authentication System
+Vape Hub – Multi‑Branch Inventory, POS, and Analytics
 
-![login register mern 1](https://github.com/Kuzma02/MERN-Login-And-Register-With-JSON-Web-Token/assets/138793624/057541be-e8ab-4489-996d-117290a85c5a)
+Overview
+- Full‑stack app for managing products, stock, sales, and reports across multiple branches.
+- Branch isolation is enforced: managers/admins only see and operate within their assigned branches; owners/admins can see all.
+- Includes branch‑scoped analytics, investments and expenses tracking, plus an admin overview.
 
-![login register mern 2](https://github.com/Kuzma02/MERN-Login-And-Register-With-JSON-Web-Token/assets/138793624/364c6008-e211-4796-a745-5829f158e441)
+Tech Stack
+- Backend: Node.js, Express, Mongoose (MongoDB)
+- Frontend: React + Vite
+- Auth: JWT (Bearer) with roles and branch scopes
 
-![login register mern 3](https://github.com/Kuzma02/MERN-Login-And-Register-With-JSON-Web-Token/assets/138793624/403f9988-3970-4b38-9de5-4469ff163164)
+Key Concepts
+- Products: Global catalog (SKU, name, price, etc.). Creating a product initializes a stock row per branch.
+- Branch scope: All stock, sales, and reports APIs require a `branchId` and are checked against the user’s JWT branches.
+- Roles:
+  - owner/admin: access all branches; extra admin endpoints enabled
+  - manager: restricted to assigned branches
 
-# A Deep Dive into MERN App with Authentication
-Building upon the foundational principles of MongoDB, Express, React, and Node.js, my project offers a detailed implementation of MERN login register functionality. 
-By integrating JWT authentication MERN stack techniques, I ensure a secure and seamless user experience.
+Getting Started
+1) Prerequisites
+   - Node.js 18+
+   - MongoDB (Atlas or local)
 
-# MERN Login Signup Flow
-My application simplifies the complexity of the MERN login signup process. The auth flow is intuitive, providing clear navigation from signing up to signing into the application. This makes my project an excellent login app example for developers seeking to 
-understand the intricacies of authentication flows.
+2) Configure environment
+   - Create `.env` in the project root. Example:
+     PORT=3000
+     MONGO_URI=mongodb://localhost:27017/vape_hub
+     JWT_SECRET=replace-with-a-long-random-string
+     CORS_ORIGIN=http://localhost:5173
+   - Client env (optional): `client/.env` with `VITE_API_URL=http://localhost:3000` if needed.
 
-# MERN Boilerplate with Authentication
-I've constructed this repository as a MERN boilerplate with authentication, so you can fork it, extend it, and build upon it to create your own applications. It serves as a MERN stack login template, showcasing best practices in MERN user authentication.
+3) Install deps
+   - Root: `npm install`
+   - Client: `cd client && npm install`
 
-# Design and User Experience
-With a focus on login app design, the front-end features a React login page template that is not only functional but also aesthetically pleasing. This application is not just an authentication MERN stack demonstration but also a testament to thoughtful design in creating engaging user interfaces.
+4) Run
+   - Backend: `npm run dev` (or `node app.js`)
+   - Frontend: `cd client && npm run dev` (opens Vite dev server)
 
-# Authentication for React App
-The authentication for react app mechanism is implemented with security and efficiency in mind. I utilize JWTs (JSON Web Tokens) to manage sessions and secure user data, providing a reliable and robust auth MERN structure.
+Authentication
+- Obtain a JWT via existing auth routes under `/auth` (login/register). The JWT payload should include:
+  { sub, email, role, branches }
+  - `role`: 'manager' | 'admin' | 'owner'
+  - `branches`: '*' for owner/admin, or array of branch codes for managers
+- The client stores the token in `localStorage.accessToken`.
 
-# MERN Authentication JWT
-Incorporating mern authentication JWT within this MERN stack application example ensures that the tokens used for user sessions are managed according to the latest security standards. It's a critical feature that underscores the entire authentication process in my MERN application example.
+Branch Selection
+- The React app keeps the active branch in `localStorage.activeBranchId` via `BranchContext`.
+- A request interceptor in `client/src/services/http.js` automatically attaches `branchId` to `/api/stock`, `/api/sales`, `/api/reports` requests.
 
-# Comprehensive Learning Resource
-This repository is more than just a MERN login and register system. It is an educational tool for understanding user authentication React methods and MERN stack authentication strategies. I aim to provide a solid understanding of how authentication integrates within a MERN stack app, offering developers a practical MERN authentication tutorial.
+API Highlights
+- Products (global)
+  - `GET /api/products` – list with optional `?q=`
+  - `POST /api/products` – create product and initialize stock rows for all branches
+  - `PATCH /api/products/:id`, `DELETE /api/products/:id`
 
-# Features
-- User Registration: Allows new users to create an account.
-- User Login: Enables users to log in with their credentials.
-- JWT Authentication: Secures user sessions using JSON Web Tokens.
-- Responsive Design: Ensures a great user experience across various devices.
+- Stock (branch‑scoped)
+  - `GET /api/stock?branchId=CODE` – list stock for a branch (alias: `/api/stock/list`)
+  - `PATCH /api/stock/adjust` – adjust on‑hand by `delta` (also supports `POST`)
 
-# Technologies Used
-Frontend:
-- React.js: For building the user interface.
-- Toastify: To display notifications and alerts.
-- React Router DOM: For managing navigation in the application.
-Backend:
-- Node.js: As the runtime environment.
-- Express: Web application framework for Node.js.
-- MongoDB: Database to store user credentials and session data.
+- Sales (branch‑scoped)
+  - `GET /api/sales/recent?branchId=CODE` – recent sales for branch
+  - `POST /api/sales` – create sale; decrements stock and records stock moves
 
-# Installation
-1. Clone the repository:
+- Reports & Analytics (branch‑scoped unless noted)
+  - `GET /api/reports/low-stock?branchId=CODE&threshold=5`
+  - `GET /api/reports/daily-sales?branchId=CODE`
+  - `GET /api/reports/analytics?branchId=CODE[&from=ISO&to=ISO&lowThreshold=N]` – KPIs: today/last7d, low stock, top products; includes last7d expenses/investments and derived profit/ROI.
+  - `GET /api/reports/analytics/overview` – admin/owner only; per‑branch totals for today/last7d.
+  - Investments: `GET/POST /api/reports/investments` (branch)
+  - Expenses: `GET/POST /api/reports/expenses` (branch)
 
-```
-git clone https://github.com/Kuzma02/MERN-Login-And-Register-With-JSON-Web-Token.git
-```
+- Branches
+  - `GET /api/branches` – list visible branches for current user
+  - `POST /api/branches` – admin/owner create branch
+  - `PATCH /api/branches/:code/assign` – admin/owner assign a manager to a branch
+  - `GET /api/branches/with-managers` – admin/owner: branches with assigned managers
 
-2. Install dependencies:
-Navigate to the project directory:
-```
-cd folder-name
-```
+Frontend Pages
+- Login/Register – obtain and store JWT
+- Dashboard – welcome, quick links; admin/owner sees analytics overview
+- Products – manage catalog
+- Stock – view/adjust on‑hand for the active branch
+- POS – create sales for the active branch
+- Reports – basic reports
+- Analytics – branch KPIs with top products, low stock, and forms to add investments/expenses
+- Branches – list branches; admin/owner can create branches, assign managers, and see managers per branch
 
-3. Install backend dependencies:
-```
-npm install
-```
+Branch Isolation Details
+- Middleware `auth` validates JWT; `branchScope` enforces that `branchId` in params/query/body is within the user’s allowed branches.
+- Owners/admins bypass branch checks (`branches === '*'` or role elevated).
 
-4. Install frontend dependencies:
+Data Models (selected)
+- Product: sku, name, brand, category, unit, unitSize, price, taxRate
+- Branch: code, name, address, phone
+- Stock: branchId, productId, onHand
+- StockMove: branchId, productId, delta, reason, refId
+- Sale: branchId, items[{ productId, qty, unitPrice, taxRate, name }], totals
+- Investment: branchId, amount, note, timestamps
+- Expense: branchId, amount, category, note, timestamps
 
-```
-cd client
-npm install
-```
+Common Issues & Tips
+- MongoDB connection: if using Atlas, ensure `MONGO_URI` uses `mongodb+srv://...`, IP allowlist is set, and DNS works. For local dev, use `mongodb://localhost:27017/vape_hub`.
+- 401 Unauthorized: token missing/expired; user is redirected to Login.
+- 403 Forbidden: branch scope violation or non‑admin hitting admin endpoints.
+- Ensure `activeBranchId` is selected; BranchContext picks the first branch if none is set.
 
-5. Configure MongoDB and JWT:
-Visit MongoDB website, create account, database and take connection string.
-After that generate 256 bits random key and add it to .env file.
-Create the .env file in the root directory with the following contents:
-```
-MONGO_URI=your_mongodb_uri
-JWT_SECRET=your_jwt_secret
-```
+Development Notes
+- Keep JWT payload consistent with role/branches for branch enforcement.
+- The client interceptor only auto‑adds `branchId` for `/api/stock`, `/api/sales`, `/api/reports` paths; pass `branchId` manually elsewhere.
+- Profit currently computes as revenue − expenses (COGS not tracked yet). Add product cost/COGS if needed.
 
-6. Run the application:
-Start the backend server:
-```
-node app.js
-```
+License
+- See `LICENSE` in the repo.
 
-7. In a new terminal, start the frontend:
-```
-cd client
-npm run dev
-```
-
-# Usage
-After starting the application, visit http://localhost:5173 in your browser. Users can now register for a new account or log in using existing credentials.

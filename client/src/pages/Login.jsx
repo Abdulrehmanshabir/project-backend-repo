@@ -2,53 +2,57 @@ import React, { useEffect, useState } from "react";
 import Image from "../assets/image.png";
 import Logo from "../assets/logo.png";
 import GoogleSvg from "../assets/icons8-google.svg";
-import { FaEye } from "react-icons/fa6";
-import { FaEyeSlash } from "react-icons/fa6";
+import { FaEye, FaEyeSlash } from "react-icons/fa6";
 import "../styles/Login.css";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-const Login = () => {
+const API = import.meta?.env?.VITE_API_URL || "http://localhost:3000";
+
+export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
-  const [ token, setToken ] = useState(JSON.parse(localStorage.getItem("auth")) || "");
   const navigate = useNavigate();
+  const token = localStorage.getItem("accessToken") || "";
 
-
+  useEffect(() => {
+    if (token) {
+      toast.info("You're already logged in");
+      navigate("/dashboard", { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
-    let email = e.target.email.value;
-    let password = e.target.password.value;
+    const form = new FormData(e.currentTarget);
+    const email = (form.get("email") || "").trim();
+    const password = (form.get("password") || "").trim();
 
-    if (email.length > 0 && password.length > 0) {
-      const formData = {
-        email,
-        password,
-      };
-      try {
-        const response = await axios.post(
-          "http://localhost:3000/api/v1/login",
-          formData
-        );
-        localStorage.setItem('auth', JSON.stringify(response.data.token));
-        toast.success("Login successfull");
-        navigate("/dashboard");
-      } catch (err) {
-        console.log(err);
-        toast.error(err.message);
-      }
-    } else {
+    if (!email || !password) {
       toast.error("Please fill all inputs");
+      return;
+    }
+
+    try {
+      const res = await axios.post(
+        `${API}/auth/login`,
+        { email, password },
+        { headers: { "Content-Type": "application/json" } }
+      );
+      const tk = res.data?.token || res.data?.accessToken;
+      if (!tk) {
+        toast.error("Token missing in response");
+        return;
+      }
+      localStorage.setItem("accessToken", tk);
+      toast.success("Login successful");
+      navigate("/dashboard", { replace: true });
+    } catch (err) {
+      const msg = err?.response?.data?.message || err?.message || "Login failed";
+      toast.error(msg);
     }
   };
-
-  useEffect(() => {
-    if(token !== ""){
-      toast.success("You already logged in");
-      navigate("/dashboard");
-    }
-  }, []);
 
   return (
     <div className="login-main">
@@ -63,43 +67,36 @@ const Login = () => {
           <div className="login-center">
             <h2>Welcome back!</h2>
             <p>Please enter your details</p>
+
             <form onSubmit={handleLoginSubmit}>
-              <input type="email" placeholder="Email" name="email" />
+              <input type="email" placeholder="Email" name="email" required />
               <div className="pass-input-div">
                 <input
                   type={showPassword ? "text" : "password"}
                   placeholder="Password"
                   name="password"
+                  required
                 />
                 {showPassword ? (
-                  <FaEyeSlash
-                    onClick={() => {
-                      setShowPassword(!showPassword);
-                    }}
-                  />
+                  <FaEyeSlash onClick={() => setShowPassword(false)} />
                 ) : (
-                  <FaEye
-                    onClick={() => {
-                      setShowPassword(!showPassword);
-                    }}
-                  />
+                  <FaEye onClick={() => setShowPassword(true)} />
                 )}
               </div>
 
               <div className="login-center-options">
                 <div className="remember-div">
                   <input type="checkbox" id="remember-checkbox" />
-                  <label htmlFor="remember-checkbox">
-                    Remember for 30 days
-                  </label>
+                  <label htmlFor="remember-checkbox">Remember for 30 days</label>
                 </div>
-                <a href="#" className="forgot-pass-link">
+                <button type="button" className="forgot-pass-link" onClick={() => toast.info("Forgot password not implemented yet")}>
                   Forgot password?
-                </a>
+                </button>
               </div>
+
               <div className="login-center-buttons">
                 <button type="submit">Log In</button>
-                <button type="submit">
+                <button type="button" onClick={() => toast.info("Google OAuth not wired yet")}>
                   <img src={GoogleSvg} alt="" />
                   Log In with Google
                 </button>
@@ -114,6 +111,4 @@ const Login = () => {
       </div>
     </div>
   );
-};
-
-export default Login;
+}

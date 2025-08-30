@@ -7,10 +7,12 @@ const Logout = () => {
     const navigate = useNavigate();
     
     useEffect(() => {
-        localStorage.removeItem("auth");
-        setTimeout(() => {
-            navigate("/");
-        }, 3000);
+        // Clear the token the app actually uses
+        localStorage.removeItem("accessToken");
+        // Optionally clear any other cached auth state
+        // localStorage.removeItem("auth");
+        // Redirect to login immediately
+        navigate("/login", { replace: true });
     }, []);
 
   return (
