@@ -2,12 +2,11 @@ import React, { useEffect, useMemo, useState } from "react";
 import "../styles/Dashboard.css";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import axios from "axios";
 import http from "../services/http";
 import { jwtDecode } from "jwt-decode";
 import { useSelector } from 'react-redux';
 
-const API = import.meta?.env?.VITE_API_URL || "http://localhost:3000";
+// Use centralized axios instance with configured baseURL
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -24,7 +23,7 @@ export default function Dashboard() {
   const fetchDashboard = async () => {
     if (!token) return; // guard
     try {
-      const res = await axios.get(`${API}/auth/dashboard`, {
+      const res = await http.get(`/auth/dashboard`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       // Expecting { message: "..."} or { msg, secret } depending on your controller

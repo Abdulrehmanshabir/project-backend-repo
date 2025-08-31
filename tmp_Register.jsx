@@ -5,10 +5,10 @@ import GoogleSvg from "../assets/icons8-google.svg";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
 import "../styles/Register.css";
 import { Link, useNavigate } from "react-router-dom";
-import http from "../services/http";
+import axios from "axios";
 import { toast } from "react-toastify";
 
-// Use centralized axios instance with configured baseURL
+const API = import.meta?.env?.VITE_API_URL || "http://localhost:3000";
 
 export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
@@ -50,7 +50,7 @@ export default function Register() {
     };
 
     try {
-      const res = await http.post(`/auth/register`, payload, {
+      const res = await axios.post(`${API}/auth/register`, payload, {
         headers: { "Content-Type": "application/json" },
       });
       // If your backend returns a token on register:
@@ -60,7 +60,7 @@ export default function Register() {
         toast.success("Registration successful");
         navigate("/dashboard", { replace: true });
       } else {
-        toast.success("Registration successful — please log in");
+        toast.success("Registration successful â€” please log in");
         navigate("/login", { replace: true });
       }
     } catch (err) {
