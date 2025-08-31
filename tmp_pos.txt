@@ -1,11 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+﻿import { useEffect, useMemo, useState } from 'react';
 import { ProductsApi, SalesApi, StockApi } from '../services/inventoryApi';
 import { useSelector } from 'react-redux';
 
 export default function POS(){
   const activeBranchId = useSelector(s=>s.branches.current);
-  // Printing toggle: set to true to enable receipt printing
-  const ENABLE_PRINT = false;
   const [receiptStyle, setReceiptStyle] = useState(()=> localStorage.getItem('receiptStyle') || 'thermal-80');
   const [q, setQ] = useState('');
   const [matches, setMatches] = useState([]);
@@ -58,16 +56,12 @@ export default function POS(){
       const sale = await SalesApi.create({ branchId: activeBranchId, items: cart, discountRs: Number(discountRs)||0 });
       setCart([]);
       setDiscountRs(0);
-      // Print receipt for the sale (disabled by default)
-      if (ENABLE_PRINT) {
-        printReceipt(sale, receiptStyle);
-      } else {
-        alert(`Sale complete! #${sale._id}\nGrand: Rs ${sale.totals.grand.toLocaleString()}`);
-      }
+      // Print receipt for the sale
+      printReceipt(sale, receiptStyle);
     } catch(e){ setErr(e.response?.data?.message || e.message); }
   };
 
-  useEffect(()=>{ if (ENABLE_PRINT) localStorage.setItem('receiptStyle', receiptStyle); }, [receiptStyle]);
+  useEffect(()=>{ localStorage.setItem('receiptStyle', receiptStyle); }, [receiptStyle]);
 
   const printReceipt = (sale, style='thermal-80') => {
     if (!sale) return;
@@ -119,7 +113,7 @@ export default function POS(){
             <h1>${store}</h1>
             ${address ? `<div class="meta">${address}</div>` : ''}
           </div>
-          <div class="meta">Branch: ${sale.branchId || ''} • ${date} • Sale #${sale._id || ''}</div>
+          <div class="meta">Branch: ${sale.branchId || ''} â€¢ ${date} â€¢ Sale #${sale._id || ''}</div>
           <div class="divider"></div>
           <table>
             <thead><tr><th style="text-align:left">Item</th><th class="right">Qty</th><th class="right">Unit</th><th class="right">Total</th></tr></thead>
@@ -172,18 +166,16 @@ export default function POS(){
       <div className="card">
         <h3>Cart - {activeBranchId}</h3>
         {err && <div style={{color:'salmon'}}>{err}</div>}
-        {ENABLE_PRINT && (
-          <div className="row" style={{justifyContent:'space-between', marginBottom:8}}>
-            <div className="row" style={{gap:8}}>
-              <label>Receipt style</label>
-              <select className="input" style={{width:160}} value={receiptStyle} onChange={e=>setReceiptStyle(e.target.value)}>
-                <option value="thermal-80">Thermal 80mm</option>
-                <option value="thermal-58">Thermal 58mm</option>
-                <option value="a4">Normal (A4)</option>
-              </select>
-            </div>
+        <div className="row" style={{justifyContent:'space-between', marginBottom:8}}>
+          <div className="row" style={{gap:8}}>
+            <label>Receipt style</label>
+            <select className="input" style={{width:160}} value={receiptStyle} onChange={e=>setReceiptStyle(e.target.value)}>
+              <option value="thermal-80">Thermal 80mm</option>
+              <option value="thermal-58">Thermal 58mm</option>
+              <option value="a4">Normal (A4)</option>
+            </select>
           </div>
-        )}
+        </div>
         <table className="table">
           <thead><tr><th>Item</th><th>Qty</th><th>Unit</th><th>Total</th><th/></tr></thead>
           <tbody>
@@ -221,5 +213,6 @@ export default function POS(){
     </div>
   );
 }
+
 
 

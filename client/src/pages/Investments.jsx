@@ -1,9 +1,14 @@
 import { useEffect, useState } from 'react';
 import http from '../services/http';
-import { useBranches } from '../modules/branches/BranchContext';
+import { useSelector } from 'react-redux';
+import { jwtDecode } from 'jwt-decode';
 
 export default function Investments(){
-  const { currentBranch } = useBranches() || {};
+  const currentBranch = useSelector(s=>s.branches.current);
+  const token = localStorage.getItem('accessToken') || '';
+  let role = '';
+  try { role = jwtDecode(token)?.role || ''; } catch {}
+  if (role === 'manager') return <div className="container"><p>Not allowed</p></div>;
   const [items, setItems] = useState([]);
   const [total, setTotal] = useState(0);
   const [from, setFrom] = useState('');
@@ -54,4 +59,3 @@ export default function Investments(){
     </div>
   );
 }
-

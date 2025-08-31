@@ -29,7 +29,21 @@ exports.list = async (req, res) => {
     const all = await Branch.find().sort({ createdAt: -1 }).lean();
     return res.json(all);
   }
-  const allowed = Array.isArray(req.user?.branches) ? req.user.branches : [];
+  // Read current permissions from DB to reflect latest assignments
+  const uid = req.user?.sub || req.user?._id || req.user?.id;
+  let allowed = [];
+  if (uid) {
+    const u = await User.findById(uid).select('branches role').lean();
+    if (u?.role === 'admin' || u?.branches === '*') {
+      const all = await Branch.find().sort({ createdAt: -1 }).lean();
+      return res.json(all);
+    }
+    if (Array.isArray(u?.branches)) allowed = u.branches;
+    else if (typeof u?.branches === 'string' && u.branches) allowed = [u.branches];
+  } else {
+    if (Array.isArray(req.user?.branches)) allowed = req.user.branches;
+    else if (typeof req.user?.branches === 'string' && req.user.branches) allowed = [req.user.branches];
+  }
   const items = await Branch.find({ code: { $in: allowed } }).sort({ createdAt: -1 }).lean();
   res.json(items);
 };
@@ -48,6 +62,9 @@ exports.listWithManagers = async (req, res) => {
       for (const code of map.keys()) map.get(code).managers.push({ _id: u._id, name: u.name, email: u.email, role: u.role });
     } else if (Array.isArray(u.branches)) {
       for (const code of u.branches) if (map.has(code)) map.get(code).managers.push({ _id: u._id, name: u.name, email: u.email, role: u.role });
+    } else if (typeof u.branches === 'string' && u.branches) {
+      const code = String(u.branches);
+      if (map.has(code)) map.get(code).managers.push({ _id: u._id, name: u.name, email: u.email, role: u.role });
     }
   }
   res.json(Array.from(map.values()));
@@ -69,14 +86,30 @@ exports.assignManager = async (req, res) => {
   // Ensure role is manager (don’t downgrade admin)
   if (user.role !== 'admin') user.role = 'manager';
 
-  if (user.branches === '*') {
+  if (user.role === 'admin' || user.branches === '*') {
     // Admins already have all; no change needed
   } else {
-    const arr = Array.isArray(user.branches) ? user.branches.map(String) : [];
-    const normalized = String(code).trim();
-    if (normalized && !arr.includes(normalized)) arr.push(normalized);
-    user.branches = arr;
+    // Single-branch managers: set to this code only
+    const codeStr = String(code).trim();
+    user.branches = codeStr;
   }
   await user.save();
   res.json({ ok: true, user: { id: user._id, role: user.role, branches: user.branches } });
 };
+
+exports.unassignManager = async (req, res) => {
+  const { code } = req.params;
+  const { userId } = await assignSchema.validateAsync(req.body);
+  const user = await User.findById(userId);
+  if (!user) return res.status(404).json({ message: 'User not found' });
+
+  if (user.role === 'admin' || user.branches === '*') {
+    return res.status(400).json({ message: 'Cannot unassign admin or wildcard user' });
+  }
+  const codeStr = String(code).trim();
+  const current = Array.isArray(user.branches) ? user.branches : [];
+  user.branches = current.filter(c => c !== codeStr);
+  await user.save();
+  res.json({ ok: true, user: { id: user._id, role: user.role, branches: user.branches } });
+};
+

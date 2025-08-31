@@ -9,7 +9,7 @@ const SaleSchema = new Schema({
     unitPrice: Number,
     taxRate: Number
   }],
-  totals: { subtotal: Number, tax: Number, grand: Number }
+  totals: { subtotal: Number, discount: { type: Number, default: 0 }, tax: Number, grand: Number }
 }, { timestamps: true });
 
 module.exports = model('Sale', SaleSchema);

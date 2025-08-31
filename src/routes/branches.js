@@ -9,5 +9,6 @@ router.get('/', ctrl.list);
 router.get('/with-managers', requireAdmin, ctrl.listWithManagers);
 router.post('/', requireAdmin, ctrl.create);
 router.patch('/:code/assign', requireAdmin, ctrl.assignManager);
+router.patch('/:code/unassign', requireAdmin, ctrl.unassignManager);
 
 module.exports = router;

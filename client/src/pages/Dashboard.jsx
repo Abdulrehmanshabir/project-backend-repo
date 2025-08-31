@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import http from "../services/http";
 import { jwtDecode } from "jwt-decode";
+import { useSelector } from 'react-redux';
 
 const API = import.meta?.env?.VITE_API_URL || "http://localhost:3000";
 
@@ -12,6 +13,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [data, setData] = useState({ msg: "", luckyNumber: "" });
   const [overview, setOverview] = useState(null);
+  const currentBranch = useSelector(s => s.branches.current) || localStorage.getItem('activeBranchId') || '';
 
   // Read token the same way the Login/Register screens write it
   const token = localStorage.getItem("accessToken") || "";
@@ -62,6 +64,9 @@ export default function Dashboard() {
         <h1 style={{margin:0}}>Dashboard</h1>
         <Link to="/logout" className="btn">Logout</Link>
       </div>
+      {role === 'manager' && currentBranch ? (
+        <div className="card"><strong>Your Branch:</strong> {currentBranch}</div>
+      ) : null}
       <div className="grid cols-3">
         <div className="card">
           <h3>Welcome</h3>

@@ -8,7 +8,7 @@ const ProductSchema = new Schema({
   unit: { type: String, enum: ['pcs','ml'], default: 'pcs' },
   unitSize: { type: Number, min: 1, default: 1 },
   price: { type: Number, default: 0 },
-  taxRate: { type: Number, default: 0 }
+  retailPrice: { type: Number, min: 0, default: null }
 }, { timestamps: true });
 
 module.exports = model('Product', ProductSchema);

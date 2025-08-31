@@ -37,10 +37,10 @@ export default function Users(){
           <tbody>
             {rows.map(u => (
               <tr key={u._id}>
-                <td>{u.name}</td>
-                <td>{u.email}</td>
-                <td>{u.role || 'manager'}</td>
-                <td>{Array.isArray(u.branches) ? u.branches.join(', ') : (u.branches || '*')}</td>
+                <td data-label="Name">{u.name}</td>
+                <td data-label="Email">{u.email}</td>
+                <td data-label="Role">{u.role || 'manager'}</td>
+                <td data-label="Branches">{Array.isArray(u.branches) ? u.branches.join(', ') : (u.branches || '*')}</td>
               </tr>
             ))}
             {rows.length===0 && !loading && <tr><td colSpan={4}>No users.</td></tr>}
@@ -50,4 +50,3 @@ export default function Users(){
     </div>
   );
 }
-

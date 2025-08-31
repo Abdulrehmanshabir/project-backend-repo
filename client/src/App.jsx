@@ -12,7 +12,8 @@ import Branches from './pages/Branches';
 import Users from './pages/Users';
 import ProtectedRoute from './modules/auth/ProtectedRoute';
 import { AuthProvider } from './modules/auth/AuthContext';
-import { BranchProvider } from './modules/branches/BranchContext';
+import { Provider } from 'react-redux';
+import store from './store';
 import DashboardLayout from './modules/layout/DashboardLayout';
 import './styles/theme.css';
 import ErrorBoundary from './modules/common/ErrorBoundary';
@@ -39,11 +40,11 @@ const router = createBrowserRouter([
         element: (
           <ErrorBoundary>
             <AuthProvider>
-              <BranchProvider>
+              <Provider store={store}>
                 <ProtectedRoute>
                   <DashboardLayout />
                 </ProtectedRoute>
-              </BranchProvider>
+              </Provider>
             </AuthProvider>
           </ErrorBoundary>
         ),

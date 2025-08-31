@@ -11,7 +11,7 @@ const productSchema = Joi.object({
   unit: Joi.string().valid('pcs','ml').default('pcs'),
   unitSize: Joi.number().min(1).default(1),
   price: Joi.number().min(0).default(0),
-  taxRate: Joi.number().min(0).max(1).default(0)
+  retailPrice: Joi.number().min(0).allow(null)
 });
 
 exports.list = async (req, res) => {
@@ -27,10 +27,11 @@ exports.create = async (req, res) => {
   const data = await productSchema.validateAsync(req.body);
   const p = await Product.create(data);
 
-  // initialize stock rows for all branches
+  // initialize stock rows for all branches with onHand derived from unitSize
   const branches = await Branch.find().lean();
+  const initial = Number(p.unitSize) || 0;
   await Stock.create(
-    branches.map(b => ({ branchId: b.code, productId: p._id, onHand: 0 }))
+    branches.map(b => ({ branchId: b.code, productId: p._id, onHand: initial }))
   );
 
   res.status(201).json(p);

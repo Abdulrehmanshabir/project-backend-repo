@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import http from '../services/http';
 import { useAuth } from '../modules/auth/AuthContext';
-import { useBranches } from '../modules/branches/BranchContext';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchBranches } from '../store/slices/branchesSlice';
 
 export default function Branches(){
   const { user } = useAuth();
-  const { branches } = useBranches();
+  const dispatch = useDispatch();
+  const branches = useSelector(s => s.branches.list);
   const [list, setList] = useState([]);
   const [form, setForm] = useState({ code:'', name:'', address:'', phone:'' });
   const [assign, setAssign] = useState({ code:'', userId:'' });
@@ -19,6 +21,7 @@ export default function Branches(){
   };
 
   useEffect(()=>{ reload(); },[]);
+  useEffect(()=>{ dispatch(fetchBranches()); }, [dispatch]);
   useEffect(()=>{
     (async () => {
       try {
@@ -50,7 +53,7 @@ export default function Branches(){
   return (
     <div>
       <h2>Branches</h2>
-      {!isAdmin && <p>You have access to: {branches.map(b=>b.code).join(', ')}</p>}
+      {!isAdmin && <p>You have access to: {(branches||[]).map(b=>b.code).join(', ')}</p>}
 
       {isAdmin && (
         <div className="card" style={{marginBottom:16}}>
@@ -102,4 +105,3 @@ export default function Branches(){
     </div>
   );
 }
-

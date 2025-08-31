@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { StockApi } from '../services/inventoryApi';
-import { useBranch } from '../modules/branches/BranchContext';
+import { useSelector } from 'react-redux';
 
 export default function Stock(){
-  const { activeBranchId } = useBranch();
+  const activeBranchId = useSelector(s=>s.branches.current);
   const [rows, setRows] = useState([]);
   const [qty, setQty] = useState(0);
   const [err, setErr] = useState('');
@@ -22,7 +22,7 @@ export default function Stock(){
   return (
     <div className="card">
       <div className="row" style={{justifyContent:'space-between'}}>
-        <h3>Stock â€” {activeBranchId}</h3>
+        <h3>Stock - {activeBranchId}</h3>
         <input className="input" style={{width:120}} type="number" placeholder="Qty" value={qty} onChange={e=>setQty(e.target.value)}/>
       </div>
       {err && <div style={{color:'salmon'}}>{err}</div>}
@@ -31,8 +31,11 @@ export default function Stock(){
         <tbody>
           {rows.map(r=>(
             <tr key={r.productId}>
-              <td>{r.sku}</td><td>{r.name}</td><td>{r.onHand}</td><td>{r.unit}</td>
-              <td className="row">
+              <td data-label="SKU">{r.sku}</td>
+              <td data-label="Name">{r.name}</td>
+              <td data-label="On hand">{r.onHand}</td>
+              <td data-label="Unit">{r.unit}</td>
+              <td data-label="Adjust" className="row">
                 <button className="btn" onClick={()=>dec(r.productId)}>-</button>
                 <button className="btn" onClick={()=>inc(r.productId)}>+</button>
               </td>
@@ -43,5 +46,6 @@ export default function Stock(){
     </div>
   );
 }
+
 
 

@@ -15,6 +15,23 @@ const login = async (req, res) => {
     const isMatch = await foundUser.comparePassword(password);
 
     if (isMatch) {
+      // Normalize legacy array branches to single string on login for managers
+      try {
+        if (foundUser.role !== 'admin') {
+          const b = foundUser.branches;
+          if (Array.isArray(b)) {
+            const next = b[0] ? String(b[0]).trim() : '';
+            if (next && next !== foundUser.branches) {
+              foundUser.branches = next;
+              await foundUser.save();
+            } else if (!next) {
+              foundUser.branches = '';
+              await foundUser.save();
+            }
+          }
+        }
+      } catch {}
+
       const payload = {
         sub: String(foundUser._id),
         id: String(foundUser._id),
@@ -60,12 +77,24 @@ const register = async (req, res) => {
   if (foundUser === null) {
     let { username, email, password, role = 'manager', branches } = req.body;
     if (username.length && email.length && password.length) {
+      // Normalize branches: '*' for admin; single code string for manager
+      let normalizedBranches;
+      if (role === 'admin') {
+        normalizedBranches = '*';
+      } else if (typeof branches === 'string' && branches.trim()) {
+        normalizedBranches = branches.trim();
+      } else if (Array.isArray(branches) && branches.length) {
+        normalizedBranches = String(branches[0]);
+      } else {
+        normalizedBranches = 'main';
+      }
+
       const person = new User({
         name: username,
         email: email,
         password: password,
         role: role === 'admin' ? 'admin' : 'manager',
-        branches: role === 'admin' ? '*' : (Array.isArray(branches) && branches.length ? branches : ['main'])
+        branches: normalizedBranches,
       });
       await person.save();
       const payload = {
