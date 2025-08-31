@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Vape Hub – Multi‑Branch Inventory, POS, and Analytics
 
 Overview
@@ -114,3 +115,6 @@ Development Notes
 License
 - See `LICENSE` in the repo.
 
+=======
+# Vapehubpos
+>>>>>>> af30c2ce34a2ff50638348cdb7dd3bd1c21f9cab
