@@ -52,7 +52,7 @@ export default function Reports() {
   return (
     <div className="stack">
       <div className="row" style={{ justifyContent: "space-between" }}>
-        <h3>Reports � {activeBranchId}</h3>
+        <h3>Reports — {activeBranchId}</h3>
         <div className="row" style={{ gap: 12 }}>
           <select
             className="input"
@@ -161,10 +161,12 @@ export default function Reports() {
                 <tr>
                   <td colSpan={4}>No transactions.</td>
                 </tr>
-              )}            </tbody>
+              )}
+            </tbody>
           </table>
         </div>
       ))}
     </div>
   );
 }
+

@@ -2,7 +2,7 @@ import { Link, NavLink } from 'react-router-dom';
 import { useMemo, useEffect, useState } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchBranches, setCurrentBranch } from '../store/slices/branchesSlice';
+import { fetchBranches } from '../store/slices/branchesSlice';
 
 export default function Navbar() {
   const token = localStorage.getItem('accessToken') || '';
@@ -12,7 +12,6 @@ export default function Navbar() {
   const isAdmin = role === 'admin' || role === 'owner';
   const dispatch = useDispatch();
   const currentBranch = useSelector(state => state.branches.current);
-  const list = useSelector(state => state.branches.list);
   const [open, setOpen] = useState(false);
 
   useEffect(()=>{ dispatch(fetchBranches()); }, [dispatch]);
@@ -61,3 +60,4 @@ export default function Navbar() {
     </nav>
   );
 }
+

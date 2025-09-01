@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import http from '../services/http';
 import { useDispatch, useSelector } from 'react-redux';
 import { setCurrentBranch } from '../store/slices/branchesSlice';
@@ -83,7 +83,7 @@ export default function Expenses(){
 
   return (
     <div className="container stack">
-      <h1>Expenses â€” {currentBranch || 'select a branch'}</h1>
+      <h1>Expenses — {currentBranch || 'select a branch'}</h1>
       <div className="row" style={{gap:8, alignItems:'flex-end'}}>
         <div><label>From</label><input type="date" value={from} onChange={e=>setFrom(e.target.value)} /></div>
         <div><label>To</label><input type="date" value={to} onChange={e=>setTo(e.target.value)} /></div>
@@ -133,18 +133,19 @@ export default function Expenses(){
         </form>
       </div>
       <div className="card">
-        <h3>Entries</h3><ul>
-  {items.map(it => (
-    <li key={it._id}>
-      {new Date(it.createdAt).toLocaleString()} - ${it.amount}
-      {it.category ? ` · ${it.category}` : ''}
-      {it.note ? ` · ${it.note}` : ''}
-      {(it.createdByName || it.createdByEmail) ? (
-        <span style={{opacity:.8}}> · by {it.createdByName || ''}{it.createdByEmail ? ` <${it.createdByEmail}>` : ''}</span>
-      ) : null}
-    </li>
-  ))}
-</ul>
+        <h3>Entries</h3>
+        <ul>
+          {items.map(it => (
+            <li key={it._id}>
+              {new Date(it.createdAt).toLocaleString()} - ${it.amount}
+              {it.category ? ` — ${it.category}` : ''}
+              {it.note ? ` — ${it.note}` : ''}
+              {(it.createdByName || it.createdByEmail) ? (
+                <span style={{opacity:.8}}> — by {it.createdByName || ''}{it.createdByEmail ? ` <${it.createdByEmail}>` : ''}</span>
+              ) : null}
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
