@@ -8,6 +8,7 @@ import Reports from './pages/Reports';
 import Analytics from './pages/Analytics';
 import Investments from './pages/Investments';
 import Expenses from './pages/Expenses';
+import Returns from './pages/Returns';
 import Branches from './pages/Branches';
 import Users from './pages/Users';
 import ProtectedRoute from './modules/auth/ProtectedRoute';
@@ -58,6 +59,7 @@ const router = createBrowserRouter([
           { path: 'analytics', element: <Analytics /> },
           { path: 'investments', element: <Investments /> },
           { path: 'expenses', element: <Expenses /> },
+          { path: 'returns', element: <Returns /> },
           { path: 'branches', element: <Branches /> },
           { path: 'users', element: <Users /> },
         ]

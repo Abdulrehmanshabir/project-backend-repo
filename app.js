@@ -11,6 +11,7 @@ const authRoutes = require('./routes/user'); // from your cloned repo (keep it)
 const productRoutes = require('./src/routes/products');
 const stockRoutes = require('./src/routes/stock');
 const salesRoutes = require('./src/routes/sales');
+const returnsRoutes = require('./src/routes/returns');
 const reportsRoutes = require('./src/routes/reports');
 const branchRoutes = require('./src/routes/branches');
 
@@ -40,6 +41,7 @@ app.use('/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/stock', stockRoutes);
 app.use('/api/sales', salesRoutes);
+app.use('/api/returns', returnsRoutes);
 app.use('/api/reports', reportsRoutes);
 app.use('/api/branches', branchRoutes);
 

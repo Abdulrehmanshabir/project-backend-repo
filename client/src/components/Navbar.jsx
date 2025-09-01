@@ -38,6 +38,7 @@ export default function Navbar() {
           <NavLink to="/stock" style={linkStyle}>Stock</NavLink>
           <NavLink to="/pos" style={linkStyle}>POS</NavLink>
           <NavLink to="/reports" style={linkStyle}>Reports</NavLink>
+          <NavLink to="/returns" style={linkStyle}>Returns</NavLink>
           <NavLink to="/analytics" style={linkStyle}>Analytics</NavLink>
           <NavLink to="/investments" style={linkStyle}>Investments</NavLink>
           <NavLink to="/expenses" style={linkStyle}>Expenses</NavLink>
@@ -60,4 +61,3 @@ export default function Navbar() {
     </nav>
   );
 }
-

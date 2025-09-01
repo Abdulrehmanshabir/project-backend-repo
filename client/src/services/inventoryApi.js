@@ -17,6 +17,11 @@ export const SalesApi = {
   create: (payload) => http.post('/api/sales', payload).then(r => r.data),
 };
 
+export const ReturnsApi = {
+  recent: (branchId) => http.get('/api/returns/recent', { params: { branchId } }).then(r => r.data),
+  create: (payload) => http.post('/api/returns', payload).then(r => r.data),
+};
+
 export const ReportsApi = {
   lowStock: (branchId, threshold=5) => http.get('/api/reports/low-stock', { params: { branchId, threshold } }).then(r => r.data),
   dailySales: (branchId) => http.get('/api/reports/daily-sales', { params: { branchId } }).then(r => r.data),
