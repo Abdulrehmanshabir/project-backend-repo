@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import http from '../services/http';
 import { useDispatch, useSelector } from 'react-redux';
 import { setCurrentBranch } from '../store/slices/branchesSlice';
@@ -24,13 +24,26 @@ export default function Expenses(){
   const [note, setNote] = useState('');
   const [mine, setMine] = useState(false);
   const [userId, setUserId] = useState('');
+  const [text, setText] = useState('');
   const [users, setUsers] = useState([]);
   const [attributeToEmployee, setAttributeToEmployee] = useState(true);
+
+  const filteredItems = useMemo(() => {
+    const t = (text || '').toLowerCase();
+    if (!t) return items;
+    return (items || []).filter(it =>
+      (it.note || '').toLowerCase().includes(t) ||
+      (it.category || '').toLowerCase().includes(t) ||
+      (it.subcategory || '').toLowerCase().includes(t) ||
+      (it.createdByName || '').toLowerCase().includes(t) ||
+      (it.createdByEmail || '').toLowerCase().includes(t)
+    );
+  }, [items, text]);
 
   const load = async ()=>{
     if (!currentBranch) return;
     // All-branches view for user expenses (admin/owner only)
-    if ((role === 'admin' || role === 'owner') && currentBranch === 'all' && kind === 'user' && (mine || userId)) {
+    if ((role === 'admin' || role === 'owner') && currentBranch === 'all' && (mine || userId)) {
       let me = '';
       try { const d = jwtDecode(token) || {}; me = d.sub || d._id || ''; } catch {}
       const params = { userId: mine ? me : userId };
@@ -106,15 +119,19 @@ export default function Expenses(){
             <option value="user">Employee</option>
           </select>
         </div>
-        {(role === 'admin' || role === 'owner') && kind === 'user' && !mine && (
+        {(role === 'admin' || role === 'owner') && !mine && (
           <div>
             <label>Employee</label>
-            <select value={userId} onChange={e=>setUserId(e.target.value)}>
+            <select value={userId} onChange={e=>{ const val=e.target.value; setUserId(val); if (val) setKind('user'); }}>
               <option value="">All</option>
               {users.map(u => (<option key={u._id} value={u._id}>{u.name} ({u.email})</option>))}
             </select>
           </div>
         )}
+        <div>
+          <label>Search</label>
+          <input type="text" placeholder="Find by note/category" value={text} onChange={e=>setText(e.target.value)} />
+        </div>
       </div>
       <div className="card">
         <h3>Add Expense</h3>
@@ -135,7 +152,7 @@ export default function Expenses(){
       <div className="card">
         <h3>Entries</h3>
         <ul>
-          {items.map(it => (
+          {filteredItems.map(it => (
             <li key={it._id}>
               {new Date(it.createdAt).toLocaleString()} - ${it.amount}
               {it.category ? ` — ${it.category}` : ''}
@@ -147,8 +164,54 @@ export default function Expenses(){
           ))}
         </ul>
       </div>
+
+      {/* Quick finder at the end: search by branch and/or user */}
+      <div className="card">
+        <h3>Find Expenses (Branch/User)</h3>
+        <div className="row" style={{gap:8, alignItems:'center', flexWrap:'wrap'}}>
+          <div>
+            <label>Branch</label>
+            <select value={currentBranch || ''} onChange={e=>dispatch(setCurrentBranch(e.target.value))}>
+              <option value="">Select</option>
+              {(role === 'admin' || role === 'owner') && (<option value="all">All branches</option>)}
+              {(branches||[]).map(b => (<option key={b.code} value={b.code}>{b.name} ({b.code})</option>))}
+            </select>
+          </div>
+          {(role === 'admin' || role === 'owner') && (
+            <div>
+              <label>Employee</label>
+              <select value={userId} onChange={e=>{ const val=e.target.value; setUserId(val); if (val) setKind('user'); }}>
+                <option value="">All</option>
+                {users.map(u => (<option key={u._id} value={u._id}>{u.name} ({u.email})</option>))}
+              </select>
+            </div>
+          )}
+          <label style={{display:'flex',alignItems:'center',gap:6}}>
+            <input type="checkbox" checked={mine} onChange={e=>setMine(e.target.checked)} /> Mine only
+          </label>
+          <button className="btn" onClick={load}>Search</button>
+        </div>
+      </div>
+
+      {/* Results of the search shown directly under the finder */}
+      <div className="card">
+        <h3>Search Results</h3>
+        <ul>
+          {filteredItems.map(it => (
+            <li key={it._id}>
+              {new Date(it.createdAt).toLocaleString()} - ${it.amount}
+              {it.category ? ` — ${it.category}` : ''}
+              {it.note ? ` — ${it.note}` : ''}
+              {(it.createdByName || it.createdByEmail) ? (
+                <span style={{opacity:.8}}> — by {it.createdByName || ''}{it.createdByEmail ? ` <${it.createdByEmail}>` : ''}</span>
+              ) : null}
+            </li>
+          ))}
+          {filteredItems.length === 0 && (
+            <li>No expenses match your filters.</li>
+          )}
+        </ul>
+      </div>
     </div>
   );
 }
-
-

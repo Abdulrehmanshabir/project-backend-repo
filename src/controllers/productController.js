@@ -38,8 +38,17 @@ exports.create = async (req, res) => {
 };
 
 exports.update = async (req, res) => {
-  const patch = await productSchema.fork(['sku','name'], (s)=>s.optional()).validateAsync(req.body);
-  const p = await Product.findByIdAndUpdate(req.params.id, patch, { new: true });
+  // Coerce incoming values defensively so PATCH from various clients doesn't fail validation
+  const raw = { ...req.body };
+  if (raw.unitSize !== undefined) raw.unitSize = Number(raw.unitSize);
+  if (raw.price !== undefined) raw.price = Number(raw.price);
+  if (raw.retailPrice === '') raw.retailPrice = null;
+  if (raw.retailPrice !== undefined && raw.retailPrice !== null) raw.retailPrice = Number(raw.retailPrice);
+
+  const patch = await productSchema
+    .fork(['sku','name'], (s)=>s.optional())
+    .validateAsync(raw);
+  const p = await Product.findByIdAndUpdate(req.params.id, patch, { new: true, runValidators: true });
   if (!p) return res.status(404).json({ message: 'Not found' });
   res.json(p);
 };
