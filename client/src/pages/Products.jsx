@@ -3,7 +3,7 @@ import { ProductsApi } from '../services/inventoryApi';
 
 export default function Products(){
   const [q, setQ] = useState('');
-  const [form, setForm] = useState({ sku:'', name:'', brand:'', category:'', unit:'pcs', unitSize:1, price:0, retailPrice:'' });
+  const [form, setForm] = useState({ sku:'', name:'', brand:'', category:'', unit:'pcs', unitSize:'', price:'', retailPrice:'' });
   const [list, setList] = useState([]);
   const [err, setErr] = useState('');
   const [editing, setEditing] = useState(null);
@@ -23,8 +23,18 @@ export default function Products(){
     e.preventDefault();
     setErr('');
     try {
-      await ProductsApi.create(form);
-      setForm({ sku:'', name:'', brand:'', category:'', unit:'pcs', unitSize:1, price:0, retailPrice:'' });
+      const payload = {
+        sku: (form.sku||'').trim(),
+        name: (form.name||'').trim(),
+        brand: (form.brand||'').trim(),
+        category: (form.category||'').trim(),
+        unit: form.unit || 'pcs',
+        unitSize: Number(form.unitSize)||1,
+        price: Number(form.price)||0,
+        retailPrice: form.retailPrice === '' ? null : Number(form.retailPrice)
+      };
+      await ProductsApi.create(payload);
+      setForm({ sku:'', name:'', brand:'', category:'', unit:'pcs', unitSize:'', price:'', retailPrice:'' });
       setQ(''); await refresh();
     } catch(e){ setErr(e.response?.data?.message || e.message); }
   };
@@ -79,8 +89,8 @@ export default function Products(){
               <select className="input" value={form.unit} onChange={e=>setForm({...form, unit:e.target.value})}>
                 <option value="pcs">pcs</option><option value="ml">ml</option>
               </select>
-              <input className="input" placeholder="Unit size (e.g. 1, 30ml)" type="number" min={1} step={1} value={form.unitSize} onChange={e=>setForm({...form, unitSize: Number(e.target.value)||1})}/>
-              <input className="input" placeholder="Sale price (Rs)" type="number" min={0} step={0.01} value={form.price} onChange={e=>setForm({...form, price:Number(e.target.value)})}/>
+              <input className="input" placeholder="Unit size (e.g. 1 or 30)" type="number" min={1} step={1} value={form.unitSize} onChange={e=>setForm({...form, unitSize: e.target.value})}/>
+              <input className="input" placeholder="Sale price (Rs)" type="number" min={0} step={0.01} value={form.price} onChange={e=>setForm({...form, price: e.target.value})}/>
               <input className="input" placeholder="Retail price (optional, Rs)" type="number" min={0} step={0.01} value={form.retailPrice}
                      onChange={e=>setForm({...form, retailPrice: e.target.value === '' ? '' : Number(e.target.value)})}/>
               <button className="btn primary" style={{gridColumn:'span 6'}}>Add</button>
