@@ -13,6 +13,17 @@ export default function POS(){
   const [err, setErr] = useState('');
   const [discountRs, setDiscountRs] = useState(0);
   const [stockById, setStockById] = useState({});
+  const sortedMatches = useMemo(() => {
+    const arr = Array.isArray(matches) ? [...matches] : [];
+    return arr.sort((a, b) => {
+      const sa = Number(stockById[a?._id] ?? 0);
+      const sb = Number(stockById[b?._id] ?? 0);
+      if (sb !== sa) return sb - sa; // highest on-hand first
+      const an = String(a?.name || '');
+      const bn = String(b?.name || '');
+      return an.localeCompare(bn);
+    });
+  }, [matches, stockById]);
 
   const loadProds = async (query='')=>{
     try { setMatches(await ProductsApi.list(query)); } catch(e){ setErr(e.response?.data?.message || e.message); }
@@ -172,7 +183,7 @@ export default function POS(){
         <table className="table">
           <thead><tr><th>SKU</th><th>Name</th><th>On hand</th><th>Price</th><th/></tr></thead>
           <tbody>
-            {matches.map(p=>(
+            {sortedMatches.map(p=>(
               <tr key={p._id}>
                 <td data-label="SKU">{p.sku}</td>
                 <td data-label="Name">{p.name}</td>

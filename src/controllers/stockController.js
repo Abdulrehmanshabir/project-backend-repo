@@ -2,18 +2,48 @@ const Joi = require('joi');
 const mongoose = require('mongoose');
 const Stock = require('../models/Stock');
 const StockMove = require('../models/StockMove');
+const Product = require('../models/Product');
 
 exports.byBranch = async (req, res) => {
   const branchId = req.query.branchId;
   if (!branchId) return res.status(400).json({ message: 'branchId required' });
-  const rows = await Stock.find({ branchId }).populate('productId').lean();
-  const result = rows.map(r => ({
-    productId: r.productId._id,
-    sku: r.productId.sku,
-    name: r.productId.name,
-    unit: r.productId.unit,
-    onHand: r.onHand
-  }));
+  // Support aggregated view for admin/owner when branchId=all
+  if (String(branchId).toLowerCase() === 'all') {
+    const rows = await Stock.aggregate([
+      { $group: { _id: '$productId', onHand: { $sum: '$onHand' } } },
+      { $lookup: { from: 'products', localField: '_id', foreignField: '_id', as: 'product' } },
+      { $addFields: { product: { $arrayElemAt: ['$product', 0] } } },
+      { $addFields: {
+          productId: '$_id',
+          sku: { $ifNull: ['$product.sku', ''] },
+          name: { $ifNull: ['$product.name', ''] },
+          unit: { $ifNull: ['$product.unit', 'pcs'] }
+        }
+      },
+      { $project: { _id: 0, product: 0, productId: 1, sku: 1, name: 1, unit: 1, onHand: 1 } }
+    ]);
+    return res.json(rows);
+  }
+
+  // Join products with stock for this branch so every product shows with onHand default 0
+  const result = await Product.aggregate([
+    { $project: { sku: 1, name: 1, unit: 1 } },
+    {
+      $lookup: {
+        from: 'stocks',
+        let: { pid: '$_id' },
+        pipeline: [
+          { $match: { $expr: { $and: [ { $eq: ['$productId', '$$pid'] }, { $eq: ['$branchId', branchId] } ] } } },
+          { $limit: 1 }
+        ],
+        as: 's'
+      }
+    },
+    // set computed values first
+    { $addFields: { productId: '$_id', onHand: { $ifNull: [ { $arrayElemAt: ['$s.onHand', 0] }, 0 ] } } },
+    // then exclude temp array 's' (no expressions here => exclusion projection is valid)
+    { $project: { s: 0 } }
+  ]);
   res.json(result);
 };
 
@@ -30,10 +60,12 @@ exports.adjust = async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
-    const row = await Stock.findOne({ branchId, productId }).session(session);
-    if (!row) throw new Error('Stock row missing');
+    let row = await Stock.findOne({ branchId, productId }).session(session);
+    if (!row) {
+      if (delta < 0) throw new Error('Insufficient stock');
+      row = new Stock({ branchId, productId, onHand: 0 });
+    }
     if (row.onHand + delta < 0) throw new Error('Insufficient stock');
-
     row.onHand += delta;
     await row.save({ session });
 

@@ -2,15 +2,15 @@
 // Usage: node scripts/backfillStock.js
 
 const mongoose = require('mongoose');
-
-const db = require('../src/config/db');
+require('dotenv').config();
+const { connect } = require('../src/config/db');
 const Branch = require('../src/models/Branch');
 const Product = require('../src/models/Product');
 const Stock = require('../src/models/Stock');
 
 async function main() {
   try {
-    await db();
+    await connect(process.env.MONGO_URI);
 
     const branches = await Branch.find().lean();
     const products = await Product.find().select('_id').lean();
@@ -42,4 +42,3 @@ async function main() {
 }
 
 main();
-
