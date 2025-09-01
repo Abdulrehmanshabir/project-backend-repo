@@ -1,14 +1,18 @@
 {
-  "name": "simple-login-and-register-with-json-web-token",
+  "name": "vapehub",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
+    "seed": "npm run seed:catalog",
+    "seed:pods": "node scripts/seedPodsAndFlavors.js pods",
+    "seed:flavors": "node scripts/seedPodsAndFlavors.js flavors",
+    "seed:catalog": "node scripts/seedPodsAndFlavors.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Kuzma02",
+  "author": "Abdullah",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
