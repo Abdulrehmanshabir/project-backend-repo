@@ -69,11 +69,11 @@ export default function Login() {
             <p>Please enter your details</p>
 
             <form onSubmit={handleLoginSubmit}>
-              <input type="email" placeholder="Email" name="email" required />
+              <input type="email" placeholder="Email address" name="email" required />
               <div className="pass-input-div">
                 <input
                   type={showPassword ? "text" : "password"}
-                  placeholder="Password"
+                  placeholder="Password (min 6 characters)"
                   name="password"
                   required
                 />

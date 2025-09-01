@@ -119,10 +119,10 @@ export default function Expenses(){
       <div className="card">
         <h3>Add Expense</h3>
         <form className="row" onSubmit={add} style={{gap:8}}>
-          <input type="number" placeholder="Amount" value={amount} onChange={e=>setAmount(e.target.value)} />
-          <input type="text" placeholder="Category" value={category} onChange={e=>setCategory(e.target.value)} />
-          <input type="text" placeholder={kind==='user' ? 'Subcategory (salary, bonus, food)' : 'Subcategory (bill, rent, repair)'} value={subcategory} onChange={e=>setSubcategory(e.target.value)} />
-          <input type="text" placeholder="Note" value={note} onChange={e=>setNote(e.target.value)} />
+          <input type="number" placeholder="Amount (Rs)" value={amount} onChange={e=>setAmount(e.target.value)} />
+          <input type="text" placeholder="Category (e.g. Utilities, Salary)" value={category} onChange={e=>setCategory(e.target.value)} />
+          <input type="text" placeholder={kind==='user' ? 'Subcategory (e.g. salary, bonus, food)' : 'Subcategory (e.g. bill, rent, repair)'} value={subcategory} onChange={e=>setSubcategory(e.target.value)} />
+          <input type="text" placeholder="Note (optional)" value={note} onChange={e=>setNote(e.target.value)} />
           {(role === 'admin' || role === 'owner') && kind === 'user' && !mine && (
             <label style={{display:'flex',alignItems:'center',gap:6}}>
               <input type="checkbox" checked={attributeToEmployee} onChange={e=>setAttributeToEmployee(e.target.checked)} />

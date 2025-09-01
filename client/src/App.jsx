@@ -18,6 +18,7 @@ import DashboardLayout from './modules/layout/DashboardLayout';
 import './styles/theme.css';
 import ErrorBoundary from './modules/common/ErrorBoundary';
 import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const router = createBrowserRouter([
   {

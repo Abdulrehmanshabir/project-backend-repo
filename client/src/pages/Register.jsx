@@ -87,9 +87,9 @@ export default function Register() {
             <p>Please enter your details</p>
 
             <form onSubmit={handleRegisterSubmit}>
-              <input type="text" placeholder="Name" name="name" required />
-              <input type="text" placeholder="Lastname" name="lastname" required />
-              <input type="email" placeholder="Email" name="email" required />
+              <input type="text" placeholder="First name" name="name" required />
+              <input type="text" placeholder="Last name" name="lastname" required />
+              <input type="email" placeholder="Email address" name="email" required />
               <select name="role" defaultValue="manager" required>
                 <option value="manager">Manager</option>
                 <option value="admin">Admin</option>
@@ -98,7 +98,7 @@ export default function Register() {
               <div className="pass-input-div">
                 <input
                   type={showPassword ? "text" : "password"}
-                  placeholder="Password"
+                  placeholder="Password (min 6 characters)"
                   name="password"
                   required
                 />
@@ -112,7 +112,7 @@ export default function Register() {
               <div className="pass-input-div">
                 <input
                   type={showPassword ? "text" : "password"}
-                  placeholder="Confirm Password"
+                  placeholder="Confirm password"
                   name="confirmPassword"
                   required
                 />

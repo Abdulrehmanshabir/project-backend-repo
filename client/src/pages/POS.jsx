@@ -34,6 +34,20 @@ export default function POS(){
     })();
   }, [activeBranchId]);
 
+  // helper to refresh stock for current branch (used after checkout)
+  const refreshStock = async () => {
+    if (!activeBranchId) return;
+    try {
+      const rows = await StockApi.byBranch(activeBranchId);
+      const map = {};
+      for (const r of rows) map[r.productId] = Number(r.onHand)||0;
+      setStockById(map);
+    } catch(e) {
+      // surface error but keep UI responsive
+      setErr(e.response?.data?.message || e.message);
+    }
+  };
+
   const addItem = (p) => {
     setCart(c=>{
       const i = c.findIndex(x=>x.productId===p._id);
@@ -58,6 +72,8 @@ export default function POS(){
       const sale = await SalesApi.create({ branchId: activeBranchId, items: cart, discountRs: Number(discountRs)||0 });
       setCart([]);
       setDiscountRs(0);
+      // immediately refresh stock to reflect decremented on-hand
+      await refreshStock();
       // Print receipt for the sale (disabled by default)
       if (ENABLE_PRINT) {
         printReceipt(sale, receiptStyle);
@@ -150,7 +166,7 @@ export default function POS(){
       <div className="card">
         <div className="row" style={{justifyContent:'space-between'}}>
           <h3>Products</h3>
-          <input className="input" placeholder="Search SKU / name" value={q} onChange={e=>setQ(e.target.value)} style={{maxWidth:260}}/>
+          <input className="input" placeholder="Search by SKU or name" value={q} onChange={e=>setQ(e.target.value)} style={{maxWidth:260}}/>
         </div>
         {err && <div style={{color:'salmon'}}>{err}</div>}
         <table className="table">
@@ -210,7 +226,9 @@ export default function POS(){
             <div>Subtotal: <b>Rs {subtotal.toLocaleString()}</b></div>
             <div style={{marginTop:6}}>
               <label style={{marginRight:8}}>Discount (Rs):</label>
-              <input className="input" style={{width:120, display:'inline-block'}} type="number" min={0} value={discountRs}
+              <input className="input" style={{width:180, display:'inline-block'}} type="number" min={0}
+                     placeholder="Enter discount amount in Rs"
+                     value={discountRs}
                      onChange={e=>setDiscountRs(Math.max(0, Number(e.target.value)||0))}/>
             </div>
             <div style={{marginTop:6}}>Grand: <b>Rs {grand.toLocaleString()}</b></div>

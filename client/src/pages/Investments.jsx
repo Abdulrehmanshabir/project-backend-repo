@@ -43,8 +43,8 @@ export default function Investments(){
       <div className="card">
         <h3>Add Investment</h3>
         <form className="row" onSubmit={add} style={{gap:8}}>
-          <input type="number" placeholder="Amount" value={amount} onChange={e=>setAmount(e.target.value)} />
-          <input type="text" placeholder="Note" value={note} onChange={e=>setNote(e.target.value)} />
+          <input type="number" placeholder="Amount (Rs)" value={amount} onChange={e=>setAmount(e.target.value)} />
+          <input type="text" placeholder="Note (optional)" value={note} onChange={e=>setNote(e.target.value)} />
           <button className="btn" type="submit">Add</button>
         </form>
       </div>

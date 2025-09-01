@@ -72,16 +72,16 @@ export default function Products(){
         {showAdd && (
           <div onClick={e=>e.stopPropagation()}>
             <form onSubmit={add} className="grid" style={{gridTemplateColumns:'repeat(6,1fr)', gap:10, marginTop:10}}>
-              <input className="input" placeholder="SKU" value={form.sku} onChange={e=>setForm({...form, sku:e.target.value})}/>
-              <input className="input" placeholder="Name" value={form.name} onChange={e=>setForm({...form, name:e.target.value})}/>
-              <input className="input" placeholder="Brand" value={form.brand} onChange={e=>setForm({...form, brand:e.target.value})}/>
-              <input className="input" placeholder="Category" value={form.category} onChange={e=>setForm({...form, category:e.target.value})}/>
+              <input className="input" placeholder="SKU (e.g. JUUL-MNG-5PK)" value={form.sku} onChange={e=>setForm({...form, sku:e.target.value})}/>
+              <input className="input" placeholder="Product name (e.g. Mango Pods)" value={form.name} onChange={e=>setForm({...form, name:e.target.value})}/>
+              <input className="input" placeholder="Brand (e.g. JUUL)" value={form.brand} onChange={e=>setForm({...form, brand:e.target.value})}/>
+              <input className="input" placeholder="Category (e.g. Pods)" value={form.category} onChange={e=>setForm({...form, category:e.target.value})}/>
               <select className="input" value={form.unit} onChange={e=>setForm({...form, unit:e.target.value})}>
                 <option value="pcs">pcs</option><option value="ml">ml</option>
               </select>
-              <input className="input" placeholder="Unit Size" type="number" min={1} step={1} value={form.unitSize} onChange={e=>setForm({...form, unitSize: Number(e.target.value)||1})}/>
-              <input className="input" placeholder="Price (Sale)" type="number" min={0} step={0.01} value={form.price} onChange={e=>setForm({...form, price:Number(e.target.value)})}/>
-              <input className="input" placeholder="Retail Price (optional)" type="number" min={0} step={0.01} value={form.retailPrice}
+              <input className="input" placeholder="Unit size (e.g. 1, 30ml)" type="number" min={1} step={1} value={form.unitSize} onChange={e=>setForm({...form, unitSize: Number(e.target.value)||1})}/>
+              <input className="input" placeholder="Sale price (Rs)" type="number" min={0} step={0.01} value={form.price} onChange={e=>setForm({...form, price:Number(e.target.value)})}/>
+              <input className="input" placeholder="Retail price (optional, Rs)" type="number" min={0} step={0.01} value={form.retailPrice}
                      onChange={e=>setForm({...form, retailPrice: e.target.value === '' ? '' : Number(e.target.value)})}/>
               <button className="btn primary" style={{gridColumn:'span 6'}}>Add</button>
             </form>
@@ -93,7 +93,7 @@ export default function Products(){
       <div className="card">
         <div className="row" style={{justifyContent:'space-between'}}>
           <h3>Products</h3>
-          <input className="input" style={{maxWidth:240}} placeholder="Search SKU / name" value={q} onChange={e=>setQ(e.target.value)}/>
+          <input className="input" style={{maxWidth:240}} placeholder="Search by SKU or product name" value={q} onChange={e=>setQ(e.target.value)}/>
         </div>
         <div style={{ maxHeight: 520, overflow: 'auto', marginTop: 8 }}>
           <table className="table">
@@ -125,16 +125,16 @@ export default function Products(){
         <div className="card">
           <h3>Edit Product - {editing.sku}</h3>
           <form onSubmit={saveEdit} className="grid" style={{gridTemplateColumns:'repeat(6,1fr)', gap:10}}>
-            <input className="input" placeholder="SKU" value={editForm.sku} onChange={e=>setEditForm({...editForm, sku:e.target.value})}/>
-            <input className="input" placeholder="Name" value={editForm.name} onChange={e=>setEditForm({...editForm, name:e.target.value})}/>
-            <input className="input" placeholder="Brand" value={editForm.brand} onChange={e=>setEditForm({...editForm, brand:e.target.value})}/>
-            <input className="input" placeholder="Category" value={editForm.category} onChange={e=>setEditForm({...editForm, category:e.target.value})}/>
+            <input className="input" placeholder="SKU (e.g. JUUL-MNG-5PK)" value={editForm.sku} onChange={e=>setEditForm({...editForm, sku:e.target.value})}/>
+            <input className="input" placeholder="Product name (e.g. Mango Pods)" value={editForm.name} onChange={e=>setEditForm({...editForm, name:e.target.value})}/>
+            <input className="input" placeholder="Brand (e.g. JUUL)" value={editForm.brand} onChange={e=>setEditForm({...editForm, brand:e.target.value})}/>
+            <input className="input" placeholder="Category (e.g. Pods)" value={editForm.category} onChange={e=>setEditForm({...editForm, category:e.target.value})}/>
             <select className="input" value={editForm.unit} onChange={e=>setEditForm({...editForm, unit:e.target.value})}>
               <option value="pcs">pcs</option><option value="ml">ml</option>
             </select>
-            <input className="input" placeholder="Unit Size" type="number" min={1} step={1} value={editForm.unitSize} onChange={e=>setEditForm({...editForm, unitSize: Number(e.target.value)||1})}/>
-            <input className="input" placeholder="Price (Sale)" type="number" min={0} step={0.01} value={editForm.price} onChange={e=>setEditForm({...editForm, price:Number(e.target.value)})}/>
-            <input className="input" placeholder="Retail Price (optional)" type="number" min={0} step={0.01} value={editForm.retailPrice ?? ''} onChange={e=>setEditForm({...editForm, retailPrice: e.target.value === '' ? null : Number(e.target.value)})}/>
+            <input className="input" placeholder="Unit size (e.g. 1, 30ml)" type="number" min={1} step={1} value={editForm.unitSize} onChange={e=>setEditForm({...editForm, unitSize: Number(e.target.value)||1})}/>
+            <input className="input" placeholder="Sale price (Rs)" type="number" min={0} step={0.01} value={editForm.price} onChange={e=>setEditForm({...editForm, price:Number(e.target.value)})}/>
+            <input className="input" placeholder="Retail price (optional, Rs)" type="number" min={0} step={0.01} value={editForm.retailPrice ?? ''} onChange={e=>setEditForm({...editForm, retailPrice: e.target.value === '' ? null : Number(e.target.value)})}/>
             <div style={{gridColumn:'span 6'}} className="row">
               <button className="btn primary" type="submit">Save</button>
               <button className="btn" type="button" onClick={cancelEdit}>Cancel</button>

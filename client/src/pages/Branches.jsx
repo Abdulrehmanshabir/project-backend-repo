@@ -59,10 +59,10 @@ export default function Branches(){
         <div className="card" style={{marginBottom:16}}>
           <h3>Create Branch</h3>
           <form onSubmit={create}>
-            <input placeholder="Code" value={form.code} onChange={e=>setForm(f=>({...f,code:e.target.value}))} />{' '}
-            <input placeholder="Name" value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))} />{' '}
-            <input placeholder="Address" value={form.address} onChange={e=>setForm(f=>({...f,address:e.target.value}))} />{' '}
-            <input placeholder="Phone" value={form.phone} onChange={e=>setForm(f=>({...f,phone:e.target.value}))} />{' '}
+            <input placeholder="Branch code (e.g. DHA)" value={form.code} onChange={e=>setForm(f=>({...f,code:e.target.value}))} />{' '}
+            <input placeholder="Branch name (e.g. DHA Phase 6)" value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))} />{' '}
+            <input placeholder="Address (e.g. 123 Main St)" value={form.address} onChange={e=>setForm(f=>({...f,address:e.target.value}))} />{' '}
+            <input placeholder="Phone (e.g. 0300-1234567)" value={form.phone} onChange={e=>setForm(f=>({...f,phone:e.target.value}))} />{' '}
             <button type="submit">Create</button>
           </form>
         </div>
