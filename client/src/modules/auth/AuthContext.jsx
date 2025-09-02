@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import http from '../../services/http';
+import axios from 'axios';
 
 const AuthCtx = createContext();
 
@@ -22,7 +22,14 @@ export function AuthProvider({ children }) {
   }, [token]);
 
   const login = async (email, password) => {
-    const res = await http.post(import.meta.env.VITE_AUTH_LOGIN_PATH || '/auth/login', { email, password });
+    const raw = import.meta?.env?.VITE_API_URL;
+    let base = typeof raw === 'string' ? raw.trim() : '';
+    if (!base || base === 'undefined' || base === 'null' || base === '/') {
+      try { const ls = localStorage.getItem('apiBaseUrl'); if (ls) base = ls.trim(); } catch {}
+    }
+    base = base.replace(/\/+$/, '');
+    const url = base ? `${base}${import.meta.env.VITE_AUTH_LOGIN_PATH || '/auth/login'}` : (import.meta.env.VITE_AUTH_LOGIN_PATH || '/auth/login');
+    const res = await axios.post(url, { email, password });
     const tk = res.data?.token || res.data?.accessToken;
     if (!tk) throw new Error('Token not returned');
     localStorage.setItem('accessToken', tk);
@@ -30,7 +37,14 @@ export function AuthProvider({ children }) {
   };
 
   const register = async (email, password, name) => {
-    await http.post(import.meta.env.VITE_AUTH_REGISTER_PATH || '/auth/register', { email, password, name });
+    const raw = import.meta?.env?.VITE_API_URL;
+    let base = typeof raw === 'string' ? raw.trim() : '';
+    if (!base || base === 'undefined' || base === 'null' || base === '/') {
+      try { const ls = localStorage.getItem('apiBaseUrl'); if (ls) base = ls.trim(); } catch {}
+    }
+    base = base.replace(/\/+$/, '');
+    const url = base ? `${base}${import.meta.env.VITE_AUTH_REGISTER_PATH || '/auth/register'}` : (import.meta.env.VITE_AUTH_REGISTER_PATH || '/auth/register');
+    await axios.post(url, { email, password, name });
   };
 
   const logout = () => { localStorage.removeItem('accessToken'); setToken(null); setUser(null); };

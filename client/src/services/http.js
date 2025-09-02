@@ -3,6 +3,8 @@ import axios from 'axios';
 // Resolve API base URL from env, with runtime override via localStorage
 function resolveBaseURL() {
   let raw = import.meta?.env?.VITE_API_URL;
+  console.log('Raw VITE_API_URL:', raw);
+  console.log('import.meta.env.VITE_API_URL:', import.meta.env.VITE_API_URL);
   let val = typeof raw === 'string' ? raw.trim() : '';
   let invalid = !val || val === 'undefined' || val === 'null' || val === '/';
   if (invalid) {

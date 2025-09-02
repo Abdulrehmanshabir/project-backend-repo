@@ -25,7 +25,17 @@ const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173')
 app.use(cors({
   origin: function(origin, callback) {
     if (!origin) return callback(null, true); // non-browser or same-origin
+    // Wildcard support via CORS_ORIGIN="*"
+    if (allowedOrigins.includes('*')) return callback(null, true);
+    // Exact match
     if (allowedOrigins.includes(origin)) return callback(null, true);
+    // Match by hostname (ignore port/protocol) for dev convenience
+    try {
+      const o = new URL(origin);
+      if (allowedOrigins.some((a) => {
+        try { const u = new URL(a); return u.hostname === o.hostname; } catch { return false; }
+      })) return callback(null, true);
+    } catch {}
     return callback(new Error('Not allowed by CORS'));
   }
 }));

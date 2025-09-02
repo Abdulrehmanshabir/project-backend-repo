@@ -5,7 +5,7 @@ import GoogleSvg from "../assets/icons8-google.svg";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
 import "../styles/Login.css";
 import { Link, useNavigate } from "react-router-dom";
-import http from "../services/http";
+import axios from "axios";
 import { toast } from "react-toastify";
 
 // Use centralized axios instance with configured baseURL
@@ -35,8 +35,18 @@ export default function Login() {
     }
 
     try {
-      const res = await http.post(
-        `/auth/login`,
+      const raw = import.meta?.env?.VITE_API_URL;
+      console.log('API URL:', raw);
+      console.log(import.meta.env.VITE_API_URL);
+
+      let base = typeof raw === 'string' ? raw.trim() : '';
+      if (!base || base === 'undefined' || base === 'null' || base === '/') {
+        try { const ls = localStorage.getItem('apiBaseUrl'); if (ls) base = ls.trim(); } catch {}
+      }
+      base = base.replace(/\/+$/, '');
+      if (!base) { toast.error("VITE_API_URL not set for frontend"); return; }
+      const res = await axios.post(
+        `${base}/auth/login`,
         { email, password },
         { headers: { "Content-Type": "application/json" } }
       );
