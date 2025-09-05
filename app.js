@@ -17,11 +17,10 @@ const branchRoutes = require('./src/routes/branches');
 
 const app = express();
 app.use(helmet());
-// Allow multiple origins via comma-separated env (e.g., local + Vercel)
-const allowedOrigins = [
-  'http://localhost:5173',
-  'https://project-frontend-repo-two.vercel.app'
-];
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173')
+  .split(',')
+  .map(s => s.trim())
+  .filter(Boolean);
 app.use(cors({
   origin: function(origin, callback) {
     if (!origin) return callback(null, true); // non-browser or same-origin
@@ -37,13 +36,8 @@ app.use(cors({
       })) return callback(null, true);
     } catch {}
     return callback(new Error('Not allowed by CORS'));
-  },
-  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
+  }
 }));
-app.options('*', cors());
-
 app.use(express.json({ limit: '1mb' }));
 app.use(morgan('dev'));
 
