@@ -22,9 +22,6 @@ const allowedOrigins = [
   'http://localhost:5173',
   'https://project-frontend-repo-two.vercel.app'
 ];
-  .split(',')
-  .map(s => s.trim())
-  .filter(Boolean);
 app.use(cors({
   origin: function(origin, callback) {
     if (!origin) return callback(null, true); // non-browser or same-origin
@@ -45,6 +42,8 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }));
+app.options('*', cors());
+
 app.use(express.json({ limit: '1mb' }));
 app.use(morgan('dev'));
 
