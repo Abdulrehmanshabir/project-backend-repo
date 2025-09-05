@@ -37,7 +37,9 @@ app.use(cors({
       })) return callback(null, true);
     } catch {}
     return callback(new Error('Not allowed by CORS'));
-  }
+  },
+  credentials: true, // allows cookies/auth headers if used
+  methods: ['GET','POST','PUT','DELETE','OPTIONS'] // supported HTTP methods
 }));
 app.use(express.json({ limit: '1mb' }));
 app.use(morgan('dev'));
